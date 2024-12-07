@@ -48,4 +48,26 @@ router.get("/tasks", authMiddleware, async (req, res) => {
   }
 });
 
+router.put("/task/:id", authMiddleware, async (req, res) => {
+  const {title, description, type} = req.body;
+
+  const taskValidation = taskSchema.safeParse({
+    title,
+    description,
+    type
+  })
+
+  if (!taskValidation.success) {
+    return res.status(401).json({msg: "Wrong input"});
+  }
+  try {
+    const id = req.params.id;
+    await Task.UpdateOne({_id: id}, {title, description, type});
+    return res.status(200).json({msg: "Task updated successfully"});
+  } catch (error) {
+    console.log('error', error);
+    return res.status(401).json({msg: "Could not update the task"});
+  }
+})
+
 module.exports = router;
